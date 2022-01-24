@@ -9,8 +9,10 @@
 color ray_color(const ray& r) {
     /* Get the direction of the ray. */
     vec3 unit_direction = unit_vector(r.direction());
-    /* Parameterization to create a gradient. */
+    /* Parameterization to create a gradient. 
+    y changes from -1 to 1, to t changes from 0 to 1. */
     auto t = 0.5*(unit_direction.y() + 1);
+    /* Linearly blend between while & 0.5 0.7 1.0. */
     return (1.0-t)*color(1.0,1.0,1.0)+t*color(0.5,0.7,1.0);
 }
 
@@ -39,7 +41,9 @@ int main(){
         for (int i=0;i<image_width;i++){
             auto u = double(i) / (image_width-1);
             auto v = double(j) / (image_height-1);
-            /* Cast a ray to each pixel. */
+            /* Cast a ray to each pixel. 
+            The start of the ray is (0,0,0) or origin hence -origin term.
+            lower_left_corner+u*horizontal+v*vertical spans all the pixels. */
             ray r(origin,lower_left_corner+u*horizontal+v*vertical-origin);
             /* Calculate the color that we see. */
             color pixel_color = ray_color(r);
