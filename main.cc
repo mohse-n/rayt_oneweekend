@@ -27,15 +27,12 @@ color ray_color(const ray& r) {
     auto sphere_center = point3(0,0,-1); 
     auto sphere_rad = 0.5;
     auto t = hit_sphere(sphere_center,sphere_rad,r);
-    if (t>0.0){
+    if (t > 0.0){
         /* Normal is the vector from the center of the sphere to the intersection point on the surface. */
         vec3 N = unit_vector(r.at(t)-sphere_center);
         /* Color the sphere. */
         return 0.5*color(N.x()+1,N.y()+1,N.z()+1);
     }
-    /* Put a red sphere at this point. */
-    if (hit_sphere(point3(0,0,-1),0.5,r))
-        return color(1,0,0);
     /* Get the direction of the ray. */
     vec3 unit_direction = unit_vector(r.direction());
     /* Parameterization to create a gradient. 
