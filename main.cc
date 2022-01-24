@@ -5,13 +5,27 @@
 
 #include <iostream>
 
-/* Return the color of the background. */
+bool hit_sphere(const point3& center, double radius, const ray& r){
+    /* Vector from origin to the center of the circle. */
+    vec3 oc = r.origin() - center;
+    /* To check whether the ray hits the sphere or not, we have to check the discriminant of a quadratic equation. */
+    auto a = dot(r.direction(),r.direction());
+    auto b = 2.0*dot(oc,r.direction());
+    auto c = dot(oc,oc)-radius*radius;
+    auto discriminant = b*b - 4*a*c;
+    return (discriminant > 0);
+}
+
+/* Return the color of the ray. */
 color ray_color(const ray& r) {
+    /* Put a red sphere at this point. */
+    if (hit_sphere(point3(0,0,-1),0.5,r))
+        return color(1,0,0);
     /* Get the direction of the ray. */
     vec3 unit_direction = unit_vector(r.direction());
     /* Parameterization to create a gradient. 
     y changes from -1 to 1, to t changes from 0 to 1. */
-    auto t = 0.5*(unit_direction.y() + 1);
+    auto t = 0.5*(unit_direction.y() + 1.0);
     /* Linearly blend between while & 0.5 0.7 1.0. */
     return (1.0-t)*color(1.0,1.0,1.0)+t*color(0.5,0.7,1.0);
 }
@@ -25,7 +39,7 @@ int main(){
 
     // Camera
     auto viewport_height = 2.0;
-    auto viewport_width =  viewport_height / aspect_ratio;
+    auto viewport_width = aspect_ratio*viewport_height;
     auto focal_length = 1.0;
 
     auto origin = point3(0,0,0);
