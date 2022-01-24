@@ -7,6 +7,14 @@ struct hit_record {
     point3 p;
     vec3 normal;
     double t;
+    bool front_face;
+
+    inline void set_face_normal(const ray& r, const vec3& outward_normal){
+        /* If the ray is in the opposite direction of the normal, it is coming fron outside to inside. */
+        front_face = dot(r.direction(),outward_normal) < 0;
+        /* Define the normal such that it always points against the ray. */
+        normal = front_face ? outward_normal : - outward_normal;
+    }
 };
 
 class hittable {
