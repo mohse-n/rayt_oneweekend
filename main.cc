@@ -8,16 +8,31 @@
 bool hit_sphere(const point3& center, double radius, const ray& r){
     /* Vector from origin to the center of the circle. */
     vec3 oc = r.origin() - center;
-    /* To check whether the ray hits the sphere or not, we have to check the discriminant of a quadratic equation. */
+    /* To check whether the ray hits the sphere or not, we have to check the discriminant of a quadratic equation. 
+    To obtain the hit points, we have to solve it. */
     auto a = dot(r.direction(),r.direction());
     auto b = 2.0*dot(oc,r.direction());
     auto c = dot(oc,oc)-radius*radius;
     auto discriminant = b*b - 4*a*c;
-    return (discriminant > 0);
+    if (discriminant < 0){
+        return -1.0;
+    } else {
+        return (-b-sqrt(discriminant)) / (2.0*a);
+    }
 }
 
 /* Return the color of the ray. */
 color ray_color(const ray& r) {
+    /* Obtain the hit points of the ray with the sphere. */
+    auto sphere_center = point3(0,0,-1); 
+    auto sphere_rad = 0.5;
+    auto t = hit_sphere(sphere_center,sphere_rad,r);
+    if (t>0.0){
+        /* Normal is the vector from the center of the sphere to the intersection point on the surface. */
+        vec3 N = unit_vector(r.at(t)-sphere_center);
+        /* Color the sphere. */
+        return 0.5*color(N.x()+1,N.y()+1,N.z()+1);
+    }
     /* Put a red sphere at this point. */
     if (hit_sphere(point3(0,0,-1),0.5,r))
         return color(1,0,0);
