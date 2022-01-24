@@ -5,7 +5,7 @@
 
 #include <iostream>
 
-bool hit_sphere(const point3& center, double radius, const ray& r){
+double hit_sphere(const point3& center, double radius, const ray& r){
     /* Vector from origin to the center of the circle. */
     vec3 oc = r.origin() - center;
     /* To check whether the ray hits the sphere or not, we have to check the discriminant of a quadratic equation. 
@@ -23,21 +23,24 @@ bool hit_sphere(const point3& center, double radius, const ray& r){
 
 /* Return the color of the ray. */
 color ray_color(const ray& r) {
+
+    /* The sphere. */
     /* Obtain the hit points of the ray with the sphere. */
-    auto sphere_center = point3(0,0,-1); 
-    auto sphere_rad = 0.5;
-    auto t = hit_sphere(sphere_center,sphere_rad,r);
+    auto t = hit_sphere(point3(0,0,-1),0.5,r);
     if (t > 0.0){
         /* Normal is the vector from the center of the sphere to the intersection point on the surface. */
-        vec3 N = unit_vector(r.at(t)-sphere_center);
-        /* Color the sphere. */
+        vec3 N = unit_vector(r.at(t)-vec3(0,0,-1));
+        /* Shade the sphere. */
         return 0.5*color(N.x()+1,N.y()+1,N.z()+1);
     }
+
+
+    /* The background. */
     /* Get the direction of the ray. */
     vec3 unit_direction = unit_vector(r.direction());
-    /* Parameterization to create a gradient. 
-    y changes from -1 to 1, to t changes from 0 to 1. */
-    auto t = 0.5*(unit_direction.y() + 1.0);
+    /* Parameterization to create a gradient for the background. 
+    y changes from -1 to 1, so t changes from 0 to 1. */
+    t = 0.5*(unit_direction.y() + 1.0);
     /* Linearly blend between while & 0.5 0.7 1.0. */
     return (1.0-t)*color(1.0,1.0,1.0)+t*color(0.5,0.7,1.0);
 }
