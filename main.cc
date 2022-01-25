@@ -4,6 +4,7 @@
 #include "hittable_list.h"
 #include "sphere.h"
 #include "camera.h"
+#include "vec3.h"
 
 #include <iostream>
 
@@ -24,11 +25,24 @@ double hit_sphere(const point3& center, double radius, const ray& r){
 }
 
 /* Return the color of the ray. */
-color ray_color(const ray& r, const hittable& world) {
+color ray_color(const ray& r, const hittable& world, int depth) {
     hit_record rec;
+
+    // If we've exceeded the ray bounce limit, no more light is gathered. 
+    if (depth <= 0)
+        return color(0,0,0);
+
     /* t_max = infinity. */
     if (world.hit(r,0,infinity,rec)){
-        return 0.5*(rec.normal + color(1,1,1));
+        /* rec.p + rec.normal, gets us to the center of the tangent sphere,
+        and then we add a random vector inside it. */
+        point3 target = rec.p + rec.normal + random_in_unit_sphere();
+        /* Note: recursion is introduced here. */
+        /* ray(rec.p,target-rec.p) goes from the intersection point on the surface of the 
+        sphere to the random point inside the sphere. So it is the bounced ray. */
+        /* Note: because of this, the scanlines at the bottom (where there can be a lot of bouncing)
+        take much longer than those at the top. */
+        return 0.5*ray_color(ray(rec.p,target-rec.p),world,depth-1);
     }
     
     /* The background. */
@@ -48,6 +62,7 @@ int main(){
     const int image_width = 400;
     const int image_height = static_cast<int>(image_width / aspect_ratio);
     const int samples_per_pixel = 100;
+    const int max_depth = 5;
 
     // World
     hittable_list world;
@@ -70,10 +85,9 @@ int main(){
             for (int s=0;s<samples_per_pixel;s++){
             auto u = (i+random_double()) / (image_width-1);
             auto v = (j+random_double()) / (image_height-1);
-        
             ray r = cam.get_ray(u,v);
             /* Calculate the color that we see. */
-            pixel_color += ray_color(r,world);
+            pixel_color += ray_color(r,world, max_depth);
             }
 
         write_color(std::cout,pixel_color, samples_per_pixel);
