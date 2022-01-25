@@ -33,7 +33,8 @@ color ray_color(const ray& r, const hittable& world, int depth) {
         return color(0,0,0);
 
     /* t_max = infinity. */
-    if (world.hit(r,0,infinity,rec)){
+    /* 0.001: ignore hits very near zero. (to fix the shadow acne problem) */
+    if (world.hit(r,0.001,infinity,rec)){
         /* rec.p + rec.normal, gets us to the center of the tangent sphere,
         and then we add a random vector inside it. */
         point3 target = rec.p + rec.normal + random_in_unit_sphere();
