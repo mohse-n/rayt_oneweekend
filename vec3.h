@@ -72,6 +72,12 @@ public:
         return vec3(random_double(min,max),random_double(min,max),random_double(min,max));
     }
 
+    bool near_zero() const {
+        // Return true if the vector is close to zero in all dimensions.
+        const auto s = 1e-8;
+        return (fabs(e[0]<s) && fabs(e[1]<s) && fabs(e[2]<s));
+    }
+
 
 };
 
@@ -136,9 +142,16 @@ vec3 random_in_unit_sphere(){
     }
 }
 
-/* Results in a more uniform distribution. See Section 8.5 of the book. */
+/* Results in a more uniform distribution. See Section 8.5 of the book. 
+Instead of selecting random points inside the sphere, we find random points on the surface,
+and use the direction from the center to the point along with an offset to get the bounced ray.*/
 vec3 random_unit_vector() {
     return unit_vector(random_in_unit_sphere());
+}
+
+/* Simple geometry using vector projection on the normal. */
+vec3 reflect(const vec3& v, const vec3& n) {
+    return v-2*dot(v,n)*n;
 }
 
 #endif

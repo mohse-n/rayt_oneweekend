@@ -5,6 +5,7 @@
 #include "sphere.h"
 #include "camera.h"
 #include "vec3.h"
+#include "material.h"
 
 #include <iostream>
 
@@ -35,15 +36,16 @@ color ray_color(const ray& r, const hittable& world, int depth) {
     /* t_max = infinity. */
     /* 0.001: ignore hits very near zero. (to fix the shadow acne problem) */
     if (world.hit(r,0.001,infinity,rec)){
-        /* rec.p + rec.normal, gets us to the center of the tangent sphere,
-        and then we add a random vector inside it. */
-        point3 target = rec.p + rec.normal + random_unit_vector();
+        ray scattered;
+        color attenuation;
         /* Note: recursion is introduced here. */
         /* ray(rec.p,target-rec.p) goes from the intersection point on the surface of the 
         sphere to the random point inside the sphere. So it is the bounced ray. */
         /* Note: because of this, the scanlines at the bottom (where there can be a lot of bouncing)
         take much longer than those at the top. */
-        return 0.5*ray_color(ray(rec.p,target-rec.p),world,depth-1);
+        if (rec.mat_ptr->scatter(r,rec,attenuation,scattered))
+            return attenuation*ray_color(scattered,world,depth-1);
+        return color(0,0,0);
     }
     
     /* The background. */
@@ -67,10 +69,17 @@ int main(){
 
     // World
     hittable_list world;
-    /* The small sphere. */
-    world.add(make_shared<sphere>(point3(0,0,-1),0.5));
-    /* The ground (a large sphere, only partially visible). */
-    world.add(make_shared<sphere>(point3(0,-100.5,-1),100));
+    
+    auto material_ground = make_shared<lambertian>(color(0.8,0.8,0));
+    auto material_center = make_shared<lambertian>(color(0.7,0.3,0.3));
+    auto material_left = make_shared<metal>(color(0.8,0.8,0.8));
+    auto material_right = make_shared<metal>(color(0.8,0.6,0.2));
+
+    /* Large sphere: ground */
+    world.add(make_shared<sphere>(point3(0.0,-100.5,-1.0),100.0,material_ground));
+    world.add(make_shared<sphere>(point3(0.0,0.0,-1.0),0.5,material_center));
+    world.add(make_shared<sphere>(point3(-1.0,0.0,-1.0),0.5,material_left));
+    world.add(make_shared<sphere>(point3(1.0,0.0,-1.0),0.5,material_right));
 
     // Camera
     camera cam;
