@@ -32,9 +32,8 @@ class camera {
             auto u = unit_vector(cross(vup,w));
             auto v = cross(w,u);
 
-            auto focal_length = 1.0;
-
             origin = lookfrom;
+            /* Haven't really looked into the math here. */
             horizontal = focus_dist * viewport_width * u;
             vertical = focus_dist * viewport_height * v;
             lower_left_corner = origin - horizontal/2 - vertical/2 - focus_dist*w;
