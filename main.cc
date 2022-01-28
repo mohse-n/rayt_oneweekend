@@ -81,8 +81,16 @@ int main(){
     world.add(make_shared<sphere>(point3(-1.0,0.0,-1.0),-0.4,material_left));
     world.add(make_shared<sphere>(point3(1.0,0.0,-1.0),0.5,material_right));
 
+    // auto R = cos(pi/4);
+    // hittable_list world;
+    // auto material_left = make_shared<lambertian>(color(0,0,1));
+    // auto material_right = make_shared<lambertian>(color(1,0,0));
+
+    // world.add(make_shared<sphere>(point3(-R,0,-1),R,material_left));
+    // world.add(make_shared<sphere>(point3(R,0,-1),R,material_right));
+
     // Camera
-    camera cam;
+    camera cam(point3(-2,2,1), point3(0,0,-1), vec3(0,1,0), 20,aspect_ratio);
 
     // Render
     std::cout << "P3\n" << image_width << ' ' << image_height << "\n255\n";
@@ -93,11 +101,11 @@ int main(){
             color pixel_color(0,0,0);
             /* Cast rays around each pixel. */
             for (int s=0;s<samples_per_pixel;s++){
-            auto u = (i+random_double()) / (image_width-1);
-            auto v = (j+random_double()) / (image_height-1);
-            ray r = cam.get_ray(u,v);
-            /* Calculate the color that we see. */
-            pixel_color += ray_color(r,world, max_depth);
+                auto u = (i+random_double()) / (image_width-1);
+                auto v = (j+random_double()) / (image_height-1);
+                ray r = cam.get_ray(u,v);
+                /* Calculate the color that we see. */
+                pixel_color += ray_color(r,world, max_depth);
             }
 
         write_color(std::cout,pixel_color, samples_per_pixel);

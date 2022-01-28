@@ -17,9 +17,8 @@ public:
     /* In case the constructor is called with no arguments. */
     vec3() : e{0,0,0} {}
     vec3(double e0,double e1,double e2) : e{e0,e1,e2} {}
-    /* Declaring a method as const allows us to use it on
-    a const objects--Otherwise will get error. 
-    Example: const vec3 v(1,2,3); v.x(); */
+    /* const methods cannot modify the object. 
+    Example: double x() const {e[0]=5;} will result in an error. */
     double x() const { return e[0]; }
     double y() const { return e[1]; }
     double z() const { return e[2]; }
